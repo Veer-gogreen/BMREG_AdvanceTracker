@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vehicle Proposal Form</title>
+  
+  <style>
+
+        .logo-container {
+            text-align: center;
+            padding: 100px;
+            background-color: #f8f9fa; /* Light background */
+        }
+        .logo-container img {
+            max-width: 500px; /* Adjust size */
+            height: auto;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 75px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 55%;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Entries Table */
+
+        #entriesTable {
+            display: none; /* Hide table initially */
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            border: 1px solid #ccc; /* Single thin border */
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        /* Movable Password Container */
+
+        #passwordContainer {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            cursor: grab; /* Indicates it's movable */
+        }
+
+        /* When dragging */
+        #passwordContainer:active {
+            cursor: grabbing;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Form Section -->
+
+    <div class="container">
+
+        <a href="https://example.com" target="_blank">
+            <img src="https://i.postimg.cc/QCc4KgFG/sw-logo.png" alt="Company Logo">
+        </a>
+
+        <h3>ADVANCE TRACKER</h3>
+
+        <form id="dataForm" onsubmit="submitForm(event)">
+            <label for="unit">Unit:</label>
+            <select id="unit" name="unit" required>
+                <option value="">Loading...</option>
+            </select>
+
+            <label for="reName">RE Name:</label>
+            <select id="reName" name="reName" required>
+                <option value="">Select Unit First</option>
+            </select>
+
+            <label for="proposalNo">Proposal No:</label>
+            <input type="text" id="proposalNo" name="proposalNo" required>
+
+            <label for="vehicleNo">Vehicle No:</label>
+            <input type="text" id="vehicleNo" name="vehicleNo" required>
+
+            <label for="vehicleDesc">Vehicle Description:</label>
+            <input type="text" id="vehicleDesc" name="vehicleDesc" required>
+
+            <label for="fundingAmount">Funding Amount:</label>
+            <input type="number" id="fundingAmount" name="fundingAmount" required>
+
+            <label for="tenure">Tenure:</label>
+            <input type="number" id="tenure" name="tenure" required>
+
+            <label for="irr">IRR:</label>
+            <input type="number" id="irr" name="irr" step="0.01" required>
+
+            <label for="remarks">Remarks:</label>
+            <textarea id="remarks" name="remarks" required></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- Show Details Button -->
+    <button onclick="showDetails()">Show Details</button>
+
+    <!-- Entries Table -->
+    <div id="entriesTable">
+         <!--<h2>Submitted Entries</h2>-->
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Unit</th>
+                    <th>RE Name</th>
+                    <th>Proposal No</th>
+                    <th>Vehicle No</th>
+                    <th>Description</th>
+                    <th>Loan Amount</th>
+                    <th>Tenure</th>
+                    <th>IRR</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="entriesBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyV9X_6QtRgXYaW1dNiRY-zO_XBEq8VjmBPL1DgkwFrtft3ICz0iRPbypr3aLFQ7Ckc/exec";
+        const password = "Veer9916*"; 
+
+        function showDetails() {
+            let inputPassword = prompt("Enter Password to View Details:");
+            if (inputPassword === password) {
+                document.getElementById("entriesTable").style.display = "block";
+                loadEntries();
+            } else {
+                alert("Incorrect Password! Access Denied.");
+            }
+        }
+
+        async function fetchDropdownData() {
+            const response = await fetch(scriptURL + "?action=getDropdownData");
+            const data = await response.json();
+            const unitDropdown = document.getElementById("unit");
+            unitDropdown.innerHTML = `<option value="">Select Unit</option>`;
+
+            Object.keys(data).forEach(unit => {
+                let option = document.createElement("option");
+                option.value = unit;
+                option.textContent = unit;
+                unitDropdown.appendChild(option);
+            });
+
+            unitDropdown.addEventListener("change", function() {
+                const reDropdown = document.getElementById("reName");
+                reDropdown.innerHTML = `<option value="">Select RE Name</option>`;
+                const selectedUnit = this.value;
+                if (data[selectedUnit]) {
+                    data[selectedUnit].forEach(reName => {
+                        let option = document.createElement("option");
+                        option.value = reName;
+                        option.textContent = reName;
+                        reDropdown.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const form = document.getElementById("dataForm");
+            const formData = new FormData(form);
+
+            const response = await fetch(scriptURL, {
+                method: "POST",
+                body: new URLSearchParams(formData),
+            });
+
+            if (response.ok) {
+                alert("Data submitted successfully!");
+                form.reset();
+                loadEntries();
+            } else {
+                alert("Error submitting data.");
+            }
+        }
+
+        async function loadEntries() {
+            const response = await fetch(scriptURL + "?action=getEntries");
+            const entries = await response.json();
+            const tableBody = document.getElementById("entriesBody");
+            tableBody.innerHTML = "";
+
+            entries.forEach(row => {
+                let tr = document.createElement("tr");
+                row.forEach(cell => {
+                    let td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchDropdownData();
+        });
+    </script>
+
+</body>
+</html>
