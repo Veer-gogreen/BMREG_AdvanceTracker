@@ -211,19 +211,48 @@ th, td {
     </div>
 </div>
 
-    <script>
+     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbyV9X_6QtRgXYaW1dNiRY-zO_XBEq8VjmBPL1DgkwFrtft3ICz0iRPbypr3aLFQ7Ckc/exec";
         const password = "Veer9916*"; 
 
         function showDetails() {
+
             let inputPassword = prompt("Enter Password to View Details:");
             if (inputPassword === password) {
                 document.getElementById("entriesTable").style.display = "block";
-                document.getElementById("formContainer").style.display = "none";
+                document.getElementById("formContainer").style.display = "none";  // Hide the form
                 loadEntries();
             } else {
                 alert("Incorrect Password! Access Denied.");
             }
+        }
+
+        async function fetchDropdownData() {
+            const response = await fetch(scriptURL + "?action=getDropdownData");
+            const data = await response.json();
+            const unitDropdown = document.getElementById("unit");
+            unitDropdown.innerHTML = `<option value="">Select Unit</option>`;
+
+            Object.keys(data).forEach(unit => {
+                let option = document.createElement("option");
+                option.value = unit;
+                option.textContent = unit;
+                unitDropdown.appendChild(option);
+            });
+
+            unitDropdown.addEventListener("change", function() {
+                const reDropdown = document.getElementById("reName");
+                reDropdown.innerHTML = `<option value="">Select RE Name</option>`;
+                const selectedUnit = this.value;
+                if (data[selectedUnit]) {
+                    data[selectedUnit].forEach(reName => {
+                        let option = document.createElement("option");
+                        option.value = reName;
+                        option.textContent = reName;
+                        reDropdown.appendChild(option);
+                    });
+                }
+            });
         }
 
         async function submitForm(event) {
@@ -239,6 +268,7 @@ th, td {
             if (response.ok) {
                 alert("Data submitted successfully!");
                 form.reset();
+                loadEntries();
             } else {
                 alert("Error submitting data.");
             }
@@ -260,6 +290,10 @@ th, td {
                 tableBody.appendChild(tr);
             });
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchDropdownData();
+        });
 
         function filterTable() {
             let input = document.getElementById("searchInput").value.toLowerCase();
