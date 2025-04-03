@@ -1,22 +1,18 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Vehicle Proposal Form</title>
-  
-  <style>
 
+    <style>
         .logo-container {
             text-align: center;
-            padding: 100px;
-            background-color: #f8f9fa; /* Light background */
+            padding: 50px;
+            background-color: #f8f9fa;
         }
         .logo-container img {
-            max-width: 500px; /* Adjust size */
+            max-width: 300px;
             height: auto;
         }
 
@@ -31,7 +27,7 @@
         .container {
             max-width: 600px;
             background: white;
-            padding: 75px;
+            padding: 40px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: auto;
@@ -72,56 +68,66 @@
             background-color: #218838;
         }
 
-        /* Entries Table */
+        /* Table Styling */
+.table-container {
+        width: 200%;
+        overflow-x: auto; /* Enables horizontal scrolling */
+        display: flex;
+        justify-content: center;
+    }
 
+    table {
+        min-width: 100%; /* Ensures table stretches properly */
+        max-width: 100vw; /* Prevents overflow beyond screen width */
+        border-collapse: collapse;
+        background: #ffffff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        table-layout: auto;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 3px 6px;
+        text-align: center;
+        white-space: nowrap; /* Prevents text wrapping */
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #f1c40f;
+        color: #ffffff;
+        transition: 0.3s;
+    }
+
+        /* Hide Table by Default */
         #entriesTable {
-            display: none; /* Hide table initially */
-            width: 100%;
-            margin-top: 10px;
-            border-collapse: collapse;
+            display: none;
         }
 
-        th, td {
-            padding: 5px;
-            border: 1px solid #ccc; /* Single thin border */
-            text-align: center;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-
-        /* Movable Password Container */
-
-        #passwordContainer {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            padding: 15px;
+        /* Filter Input */
+        #searchInput {
+            width: 50%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            cursor: grab; /* Indicates it's movable */
-        }
-
-        /* When dragging */
-        #passwordContainer:active {
-            cursor: grabbing;
         }
     </style>
 
 </head>
 
 <body>
-    <!-- Form Section -->
 
-    <div class="container">
-
+    <div class="container" id="formContainer">
         <a href="https://example.com" target="_blank">
             <img src="https://i.postimg.cc/QCc4KgFG/sw-logo.png" alt="Company Logo">
         </a>
@@ -169,24 +175,30 @@
 
     <!-- Entries Table -->
     <div id="entriesTable">
-         <!--<h2>Submitted Entries</h2>-->
-        <table>
-            <thead>
-                <tr>
-                    <th>Date & Time</th>
-                    <th>Unit</th>
-                    <th>RE Name</th>
-                    <th>Proposal No</th>
-                    <th>Vehicle No</th>
-                    <th>Description</th>
-                    <th>Loan Amount</th>
-                    <th>Tenure</th>
-                    <th>IRR</th>
-                    <th>Remarks</th>
-                </tr>
-            </thead>
-            <tbody id="entriesBody"></tbody>
-        </table>
+        <h2>Submitted Entries</h2>
+
+        <!-- Search Input for Filtering -->
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search for entries...">
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Unit</th>
+                        <th>RE Name</th>
+                        <th>Proposal No</th>
+                        <th>Vehicle No</th>
+                        <th>Description</th>
+                        <th>Loan Amount</th>
+                        <th>Tenure</th>
+                        <th>IRR</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="entriesBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -197,38 +209,11 @@
             let inputPassword = prompt("Enter Password to View Details:");
             if (inputPassword === password) {
                 document.getElementById("entriesTable").style.display = "block";
+                document.getElementById("formContainer").style.display = "none";
                 loadEntries();
             } else {
                 alert("Incorrect Password! Access Denied.");
             }
-        }
-
-        async function fetchDropdownData() {
-            const response = await fetch(scriptURL + "?action=getDropdownData");
-            const data = await response.json();
-            const unitDropdown = document.getElementById("unit");
-            unitDropdown.innerHTML = `<option value="">Select Unit</option>`;
-
-            Object.keys(data).forEach(unit => {
-                let option = document.createElement("option");
-                option.value = unit;
-                option.textContent = unit;
-                unitDropdown.appendChild(option);
-            });
-
-            unitDropdown.addEventListener("change", function() {
-                const reDropdown = document.getElementById("reName");
-                reDropdown.innerHTML = `<option value="">Select RE Name</option>`;
-                const selectedUnit = this.value;
-                if (data[selectedUnit]) {
-                    data[selectedUnit].forEach(reName => {
-                        let option = document.createElement("option");
-                        option.value = reName;
-                        option.textContent = reName;
-                        reDropdown.appendChild(option);
-                    });
-                }
-            });
         }
 
         async function submitForm(event) {
@@ -244,7 +229,6 @@
             if (response.ok) {
                 alert("Data submitted successfully!");
                 form.reset();
-                loadEntries();
             } else {
                 alert("Error submitting data.");
             }
@@ -267,9 +251,14 @@
             });
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            fetchDropdownData();
-        });
+        function filterTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll("#entriesBody tr");
+
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+            });
+        }
     </script>
 
 </body>
